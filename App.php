@@ -280,10 +280,9 @@ class App
     {
         // return $m;
         $m =  strtok($m, '?');
-        $m = strtolower($m);
         if (str_starts_with($m, '#')) return false;
-        if (str_contains($m, 'data:image')) return false;
-        if (str_starts_with($m, 'javascript:') || $m == 'javascript') return false;
+        if (str_contains(strtolower($m), 'data:image')) return false;
+        if (str_starts_with(strtolower($m), 'javascript:') || $m == 'javascript') return false;
         if (str_starts_with($m, '//')) return false;
         if (str_starts_with($m, 'mailto')) return false;
         if (str_starts_with($m, 'tel')) return false;
@@ -362,7 +361,9 @@ class App
         if (!file_exists($folder)) {
             // dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
             // echo "<b style='color:red'>$url</b>, <b style='color:blue;'>folder=$folder </b><br>";
-            mkdir($folder, 0777, true);
+            if (!mkdir($folder, 0777, true)) {
+                dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
+            }
         }
 
         return $dir;
@@ -423,7 +424,7 @@ class App
         preg_match_all('/background(-image)?:(\s*)url\(["\']?\s*([.\w\/\?\-]+)\s*["\']?\)/U', $str, $bc);
         $bc = $bc[3];
 
-        $_path = str_replace($this->absPath, '', $path);
+        $_path = str_ireplace($this->absPath, '', $path);
 
         $parts = explode('/', $_path);
         $current =  array_pop($parts);
@@ -589,6 +590,10 @@ class App
             if (in_array($url, $this->processed_css)) continue;
             $path = $this->path_name($url);
 
+            // $_path = str_ireplace($this->absPath, '', $path);
+
+            // $parts = explode('/', $_path);
+
             $css = @file_get_contents($this->url_filename($url));
 
             if (!$css) continue;
@@ -607,8 +612,9 @@ class App
             $bc = [...$bc1[1], ...$bc2[1], ...$bc3[1]];
 
 
-            $parts = explode('/', $path);
-            array_pop($parts);
+            $_path = str_ireplace($this->absPath, '', $path);
+            $parts = explode('/', $_path);
+            $current = array_pop($parts);
             // $parts =  array_reverse($parts);
 
             $path_dir = implode('/', $parts);
@@ -616,7 +622,7 @@ class App
 
             foreach ($bc as $m) {
 
-                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m = $path_dir . '/' . trim($m, '/');
+                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http')) $m = '/' . trim($path_dir . '/' . trim($m, '/'), '/');
 
                 $m = $this->relative_path($m);
                 if (!$m) continue;
