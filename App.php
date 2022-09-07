@@ -282,6 +282,7 @@ class App
         $m =  strtok($m, '?');
         $m = strtolower($m);
         if (str_starts_with($m, '#')) return false;
+        if (str_contains($m, 'data:image')) return false;
         if (str_starts_with($m, 'javascript:') || $m == 'javascript') return false;
         if (str_starts_with($m, '//')) return false;
         if (str_starts_with($m, 'mailto')) return false;
@@ -360,7 +361,7 @@ class App
 
         if (!file_exists($folder)) {
             // dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
-            echo "<b style='color:red'>$url</b>, <b style='color:blue;'>folder=$folder </b><br>";
+            // echo "<b style='color:red'>$url</b>, <b style='color:blue;'>folder=$folder </b><br>";
             mkdir($folder, 0777, true);
         }
 
