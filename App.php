@@ -401,6 +401,7 @@ class App
 
             return $a && $b;
         });
+        // dj($this->css);
 
         foreach ($this->css as $url) {
             if (in_array($url, $this->processed_css)) continue;
@@ -424,7 +425,7 @@ class App
         $_path = str_replace($this->absPath, '', $path);
 
         $parts = explode('/', $_path);
-        array_pop($parts);
+        $current =  array_pop($parts);
 
 
         $path_dir = '/' . trim(implode('/', $parts), '/');
@@ -548,44 +549,31 @@ class App
             // @import "../bootstrap/css/bootstrap.min.css"
             preg_match_all('/@import\s+[\'"]([^"\':]+)[\'"];/', $css, $bc3);
 
-            // dj(__LINE__, $bc3);
-            // if (str_ends_with($url, 'style.css')) {
-            //     dj($bc1, $bc2, $bc3);
-            // }
 
-            // dj($bc1);
 
             $bc = [...$bc1[1], ...$bc2[1], ...$bc3[1]];
-            // dj(__LINE__, $bc);
 
             $_path = str_replace($this->absPath, '', $path);
             $parts = explode('/', $_path);
-            array_pop($parts);
-            // $parts =  array_reverse($parts);
+            $current =  array_pop($parts);
 
             $path_dir = '/' . implode('/', $parts);
+            $links = [];
 
 
             foreach ($bc as $m) {
 
-                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m = $path_dir . '/' . trim($m, '/');
+                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m = '/' . trim($path_dir . '/' . trim($m, '/'), '/');
 
                 $m = $this->relative_path($m);
                 if (!$m) continue;
 
                 if (str_ends_with($m, '.css'))   $this->sub_css[] = $m;
 
-                // if (str_ends_with($url, 'style.css')) $st[] = $m;
-
                 if (!in_array($m, $this->links)) $this->links[] = $m;
+                $links[] = $m;
             }
-
-            // if (str_ends_with($url, 'style.css')) {
-            //     dj($st);
-            // }
         }
-
-        // dj(__LINE__, $this->absDomain, $this->sub_css);
     }
 
     public function parseSubCss()
