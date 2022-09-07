@@ -68,7 +68,7 @@ class Utils
         $destination = preg_replace('/[^a-z0-9]/i', '-', $destination);
 
         $zipname = "$destination.zip";
-
+        if (!file_exists(dirname(__DIR__) . '/zips')) mkdir(dirname(__DIR__) . '/zips', 0777, true);
 
         $destination = dirname(__DIR__) . "/zips/$destination";
 

@@ -261,11 +261,13 @@ class App
             $this->scrapeMain($u);
         }
 
+        die("<b style='color:green'>Files saved successfully inside $this->absPath </b>");
+
         $UT = new Utils;
         $zipname = str_replace('https://', '', $this->absDomain) . '-' . $this->path;
         $path = $this->host;
 
-        // $path =  dirname(__DIR__) . "/temps/$path";
+        $path =  dirname(__DIR__) . "/temps/$path";
 
         $zipname = preg_replace('/[^a-z0-9.-]/i', '_', $zipname);
 
