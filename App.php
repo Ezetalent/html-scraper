@@ -90,7 +90,9 @@ class App
     {
         $dir = $this->url_filename($url);
         if (file_exists($dir)) return true; // "File $url has been scraped";
-
+        if (!$url) {
+            dj($this->links);
+        }
         $str = @file_get_contents($url, false, $this->context());
         if (!$str)  return false;
 
@@ -178,9 +180,17 @@ class App
         preg_match_all("/(src|href)='([\w\-.\/]+)[^\w\-.\/]/U", $str, $src5);
 
 
-        if ($this->first) $this->themeSwitch($str);
 
-        $src = [...$src1[2], ...$src2[2], ...$src3[2], ...$src4[2], ...$src5[2]];
+
+        preg_match_all("/data-([\w\-]+)=['\"](([\w\-.\/]+)\.([a-zA-Z0-9]{3}))['\"]/U", $str, $src6);
+
+
+
+        // if ($this->first) $this->themeSwitch($str);
+
+        $src = [...$src1[2], ...$src2[2], ...$src3[2], ...$src4[2], ...$src5[2], ...$src6[2]];
+
+        // dj($src6);
 
         $src = array_unique($src);
 
@@ -200,13 +210,15 @@ class App
 
         $links = [...$this->links,  ...$links];
 
-        foreach ($links as $k => $l) $links[$k] = $this->relative_path($l);
-        $this->links = [...$links];
+        $_links = [];
+
+        foreach ($links as $k => $l) if ($h = $this->relative_path($l)) $_links[] = $h;
+        $this->links = $_links;
 
         // dj(__LINE__, $this->links);
 
         $this->parseCss($path);
-        // dj(__LINE__);
+        // dj(__LINE__, $this->links);
         $this->ParseIcons($path);
 
         $htmls = array_filter($src, function ($u) {
@@ -232,7 +244,7 @@ class App
         // dj(__LINE__, $path, $this->html_links);
 
 
-        // dj($this->domain, $this->links, $this->html_links);
+        // dj(__LINE__, $this->domain, $this->links, $this->html_links);
         foreach ($this->links as $l) {
             if (file_exists($this->url_filename($l))) continue;
             $this->scrape($l);
@@ -398,14 +410,12 @@ class App
     {
 
         $this->css =  array_filter($this->links, function ($x) {
-            $a = str_ends_with($x, '.css');
-            $b = !str_contains($x, 'bootstrap');
-
-            return $a && $b;
+            return str_ends_with($x, '.css');
         });
         // dj($this->css);
 
         foreach ($this->css as $url) {
+            // if (str_ends_with($url, 'style.css')) die('dddd');
             if (in_array($url, $this->processed_css)) continue;
 
             $css = @file_get_contents($this->url_filename($url));
@@ -422,7 +432,11 @@ class App
     public function addCssIm($str, $path, $html = false)
     {
         preg_match_all('/background(-image)?:(\s*)url\(["\']?\s*([.\w\/\?\-]+)\s*["\']?\)/U', $str, $bc);
+
         $bc = $bc[3];
+        // if (str_ends_with($path, 'style.css')) {
+        //     dj($bc);
+        // }
 
         $_path = str_ireplace($this->absPath, '', $path);
 
@@ -437,13 +451,14 @@ class App
 
         foreach ($bc as $m) {
 
-            if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m = $path_dir . '/' . trim($m, '/');
+            if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m =  trim($path_dir . '/' . trim($m, '/'), '/');
 
             $m = $this->relative_path($m);
             if (!$m) continue;
 
             if (!in_array($m, $this->links)) $links[] = $m;
         }
+
 
         // if (!empty($links)) dj(__LINE__, $this->absPath, $_path, $path_dir, $this->host, $path, $links);
 
@@ -565,7 +580,7 @@ class App
 
             foreach ($bc as $m) {
 
-                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m = '/' . trim($path_dir . '/' . trim($m, '/'), '/');
+                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m =  trim($path_dir . '/' . trim($m, '/'), '/');
 
                 $m = $this->relative_path($m);
                 if (!$m) continue;
@@ -622,7 +637,7 @@ class App
 
             foreach ($bc as $m) {
 
-                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http')) $m = '/' . trim($path_dir . '/' . trim($m, '/'), '/');
+                if (!str_starts_with($m, '/') && !str_starts_with($m, 'http')) $m =  trim($path_dir . '/' . trim($m, '/'), '/');
 
                 $m = $this->relative_path($m);
                 if (!$m) continue;
@@ -690,7 +705,9 @@ class App
     }
 }
 
-
+/**
+ * Die a code and prints out the passed argumets as json
+ */
 function dj(...$x)
 {
     if (count($x) < 2)  $x = $x[0] ?? '';
