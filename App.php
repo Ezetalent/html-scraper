@@ -293,7 +293,7 @@ class App
         // return $m;
         $m =  strtok($m, '?');
         if (str_starts_with($m, '#')) return false;
-        if (str_contains(strtolower($m), 'data:image')) return false;
+        if (str_contains(strtolower($m), 'data:')) return false;
         if (str_starts_with(strtolower($m), 'javascript:') || $m == 'javascript') return false;
         if (str_starts_with($m, '//')) return false;
         if (str_starts_with($m, 'mailto')) return false;
@@ -369,12 +369,16 @@ class App
         $folder = substr($dir, 0, strrpos($dir, '/'));
 
         // dj(__LINE__, $folder);
+        // if (str_contains($folder, 'base64')) {
+        //     dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
+        // }
 
         if (!file_exists($folder)) {
             // dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
             // echo "<b style='color:red'>$url</b>, <b style='color:blue;'>folder=$folder </b><br>";
             if (!mkdir($folder, 0777, true)) {
-                dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
+                return false;
+                // dj(__LINE__, $url, $this->url, $this->links, $this->url, $this->html_links);
             }
         }
 
@@ -450,6 +454,9 @@ class App
 
 
         foreach ($bc as $m) {
+            // if (str_contains($m, 'data:')) {
+            //     dj(__LINE__, $m);
+            // }
 
             if (!str_starts_with($m, '/') && !str_starts_with($m, 'http'))   $m =  trim($path_dir . '/' . trim($m, '/'), '/');
 
