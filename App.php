@@ -270,11 +270,20 @@ class App
 
             unset($this->html_links[$k]);
 
+
             // echo "$this->domain ++++ <b style='color:blue;'> $path </b>++ <b style='color:red;'>$old_url</b> ++ <b> $l</b> <br><br>";
             // continue;
             if (in_array($u, $this->indexes)) continue;
 
-            if (file_exists($this->url_filename($u)) && !str_ends_with($u, 'index.html')) continue;
+            $end = substr($u, strrpos($u, '/') + 1);
+
+            // if a url is not a filename containg  (.) at the end of the url
+            //  it is assumed to target folder index or something like that
+
+            // if file already exist we skip it, however we will not skip the 
+            // index page as this will give a fresh entry into to files
+
+            if (file_exists($this->url_filename($u)) && (!str_ends_with($u, 'index.html') || !str_contains($end, '.'))) continue;
 
             $this->indexes[] = $u;
 
