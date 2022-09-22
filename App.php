@@ -15,6 +15,8 @@ class App
 
     public $css = [];
 
+    private $indexes = [];
+
     /**
      * Jquery script
      */
@@ -270,11 +272,16 @@ class App
 
             // echo "$this->domain ++++ <b style='color:blue;'> $path </b>++ <b style='color:red;'>$old_url</b> ++ <b> $l</b> <br><br>";
             // continue;
+            if (in_array($u, $this->indexes)) continue;
 
-            if (file_exists($this->url_filename($u))) continue;
+            if (file_exists($this->url_filename($u)) && !str_ends_with($u, 'index.html')) continue;
+
+            $this->indexes[] = $u;
 
             $this->scrapeMain($u);
         }
+
+        // dj($this->indexes);
 
         die("<b style='color:green'>Files saved successfully inside $this->absPath </b>");
 
