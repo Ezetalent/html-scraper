@@ -60,8 +60,9 @@ class App
 
         $this->main_path();
 
-        if (!$str = @file_get_contents($url, false, $this->context())) return;
-
+        $str = @file_get_contents($url, false, $this->context());
+        if (!$str)   $str = @file_get_contents(str_replace('https:', 'http:', $url), false, $this->context());
+        if (!$str) return;
         // print_r($str);
         // die;
 
@@ -94,7 +95,8 @@ class App
             dj($this->links);
         }
         $str = @file_get_contents($url, false, $this->context());
-        if (!$str)  return false;
+        if (!$str)   $str = @file_get_contents(str_replace('https:', 'http:', $url), false, $this->context());
+        if (!$str)   return false;
 
         return   file_put_contents($dir, $str);
     }
@@ -241,6 +243,7 @@ class App
 
         $this->html_links = [...$this->html_links, ...$new_htmls];
 
+        // dj(__LINE__, $htmls);
         // dj(__LINE__, $path, $this->html_links);
 
 
